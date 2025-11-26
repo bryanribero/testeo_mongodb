@@ -4,7 +4,6 @@ import { getConnection } from './connection.js'
 const getUsuarios = async () => {
   try {
     const database = await getConnection()
-
     const usuarios = await database.collection('usuarios').find().toArray()
 
     console.table(usuarios)
@@ -16,7 +15,6 @@ const getUsuarios = async () => {
 const addUsuarios = async () => {
   try {
     const database = await getConnection()
-
     const usuarios = await database.collection('usuarios').insertOne({ nombre: 'Angela', appelido: 'LANUS', edad: 33 })
 
     console.log(usuarios)
@@ -28,7 +26,6 @@ const addUsuarios = async () => {
 const updateUsuarios = async () => {
   try {
     const database = await getConnection()
-
     const usuarios = await database
       .collection('usuarios')
       .updateOne({ _id: new ObjectId('692125128da011338c62a851') }, { $set: { apellido: 'LANUZ' } })
