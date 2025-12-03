@@ -1,4 +1,4 @@
-import { ConnectDB } from './connectionMongoose.js'
+import { connectDB } from './connectionMongoose.js'
 import Usuarios from './schema/Usuarios.js'
 
 const usuario = new Usuarios({
@@ -7,7 +7,7 @@ const usuario = new Usuarios({
 })
 
 try {
-  await ConnectDB()
+  await connectDB()
 
   await usuario.save()
 } catch (err) {
