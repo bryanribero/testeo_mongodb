@@ -3,21 +3,21 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-export const ConnectDB = async () => {
+export const getConnection = async () => {
   try {
     if (mongoose.connection.readyState === 1) {
-      console.log('DB ya estaba conectada')
+      console.log('Conecction already')
 
       return
     }
 
-    await mongoose.connect(process.env.DB_URL, {
+    mongoose.connect(process.env.DB_URL, {
       dbName: 'eccomerce'
     })
 
-    console.log('DB conectada')
+    console.log('DB coneccted')
   } catch (err) {
-    console.log('Error conectando la DB:', err)
+    console.error(err)
 
     process.exit(1)
   }
