@@ -7,26 +7,50 @@ await connectDB()
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`)
 
-  if (url.pathname === '/usuarios' && req.method === 'GET') {
-    try {
-      const result = await Usuario.find()
+  if (url.pathname.startsWith('/usuarios') && req.method === 'GET') {
+    const parts = url.pathname.split('/')
 
-      res.writeHead(200, { 'content-type': 'application/json' })
+    if (parts.length === 2) {
+      try {
+        const result = await Usuario.find()
 
-      res.end(
-        JSON.stringify({
-          title: 'Colleccion traida con exito',
-          content: result
-        })
-      )
-    } catch (err) {
-      res.writeHead(500, { 'content-type': 'application/json' })
+        res.writeHead(200, { 'content-type': 'application/json' })
 
-      res.end(
-        JSON.stringify({
-          error: `Error al cargar los datos: ${err}`
-        })
-      )
+        res.end(
+          JSON.stringify({
+            title: 'Colleccion traida con exito',
+            content: result
+          })
+        )
+      } catch (err) {
+        res.writeHead(500, { 'content-type': 'application/json' })
+
+        res.end(
+          JSON.stringify({
+            error: `Error al cargar los datos: ${err}`
+          })
+        )
+      }
+    } else if (parts.length === 3) {
+      try {
+        const id = parts[2]
+        const result = await Usuario.findById(id)
+
+        res.writeHead(200, { 'content-type': 'application/json' })
+        res.end(
+          JSON.stringify({
+            title: 'Usuario obtenido con exito!',
+            content: result
+          })
+        )
+      } catch (err) {
+        res.writeHead(500, { 'content-type': 'application/json' })
+        res.end(
+          JSON.stringify({
+            err: `Error al conseguir los datos: ${err}`
+          })
+        )
+      }
     }
   }
 
