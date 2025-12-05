@@ -83,6 +83,68 @@ const server = http.createServer(async (req, res) => {
       }
     })
   }
+
+  if (url.pathname.startsWith('/usuarios') && req.method === 'PATCH') {
+    const parts = url.pathname.split('/')
+
+    if (parts.length === 2) {
+      let body = ''
+
+      req.on('data', (chunk) => (body += chunk))
+
+      req.on('end', async () => {
+        try {
+          const usuario = JSON.parse(body)
+
+          await Usuario.updateMany({}, usuario, { new: true, runValidators: true })
+
+          res.writeHead(200, { 'content-type': 'application/json' })
+
+          res.end(
+            JSON.stringify({
+              title: 'Usuarios actualizados con exito!',
+              content: usuario
+            })
+          )
+        } catch (err) {
+          res.writeHead(500, { 'content-type': 'application/json' })
+
+          res.end(
+            JSON.stringify({
+              error: `Error al actualizar los datos: ${err}`
+            })
+          )
+        }
+      })
+    } else if (parts.length === 3) {
+      const id = parts[2]
+      let body = ''
+
+      req.on('data', (chunk) => (body += chunk))
+
+      req.on('end', async () => {
+        try {
+          const usuario = JSON.parse(body)
+
+          await Usuario.findByIdAndUpdate(id, usuario, { new: true, runValidators: true })
+          const result = await Usuario.findById(id)
+
+          res.writeHead(200, { 'content-type': 'application/json' })
+
+          res.end(
+            JSON.stringify({
+              title: 'Dato actualizado con exito!',
+              content: result
+            })
+          )
+        } catch (err) {
+          res.writeHead(500, { 'content-type': 'application/json' })
+
+          res.end(JSON.stringify({ err: `Error al actualizar datos: ${err}` }))
+        }
+      })
+    }
+  }
 })
 
 server.listen(3000, () => {
