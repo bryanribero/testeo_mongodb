@@ -145,6 +145,35 @@ const server = http.createServer(async (req, res) => {
       })
     }
   }
+
+  if (url.pathname.startsWith('/usuarios') && req.method === 'DELETE') {
+    const parts = url.pathname.split('/')
+
+    if (parts.length === 3) {
+      const id = parts[2]
+
+      try {
+        const result = await Usuario.findByIdAndDelete(id)
+
+        res.writeHead(200, { 'content-type': 'application/json' })
+
+        res.end(
+          JSON.stringify({
+            title: 'Usuario eliminado con exito!',
+            content: result
+          })
+        )
+      } catch (err) {
+        res.writeHead(500, { 'content-type': 'application/json' })
+
+        res.end(JSON.stringify({ error: `Usuario imposible de eliminar: ${err}` }))
+      }
+    } else {
+      res.writeHead(404, { 'content-type': 'application/json' })
+
+      res.end(JSON.stringify({ error: 'Acción incorrecta en el metodo DELETE' }))
+    }
+  }
 })
 
 server.listen(3000, () => {
