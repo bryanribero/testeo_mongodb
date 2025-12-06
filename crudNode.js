@@ -1,6 +1,7 @@
 import http from 'http'
 import { connectDB } from './connectionMongoose.js'
 import Usuario from './schema/Usuarios.js'
+import Producto from './schema/Productos.js'
 
 await connectDB()
 
@@ -172,6 +173,25 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(404, { 'content-type': 'application/json' })
 
       res.end(JSON.stringify({ error: 'Acción incorrecta en el metodo DELETE' }))
+    }
+  }
+
+  if (url.pathname.startsWith('/productos') && req.method === 'GET') {
+    try {
+      const productos = await Producto.find().populate('usuarioId')
+
+      res.writeHead(200, { 'content-type': 'applcation/json' })
+
+      res.end(
+        JSON.stringify({
+          title: 'Productos cargados con exito!',
+          content: productos
+        })
+      )
+    } catch (err) {
+      res.writeHead(500, { 'content-type': 'application/json' })
+
+      res.end(JSON.stringify({ error: `error al cargar productos: ${err}` }))
     }
   }
 })
