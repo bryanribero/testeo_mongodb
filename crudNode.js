@@ -6,6 +6,25 @@ import Producto from './schema/Productos.js'
 await connectDB()
 
 const server = http.createServer(async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204)
+    res.end()
+    return
+  }
+
+  const getBody = (req) => {
+    return new Promise((resolve, reject) => {
+      let body = ''
+      req.on('data', (chunk) => (body += chunk))
+      req.on('end', () => resolve(body))
+      req.on('error', (err) => reject(err))
+    })
+  }
+
   const url = new URL(req.url, `http://${req.headers.host}`)
 
   if (url.pathname.startsWith('/usuarios') && req.method === 'GET') {
@@ -56,33 +75,23 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname === '/usuarios' && req.method === 'POST') {
-    let body = ''
+    try {
+      const body = await getBody(req)
+      const usuario = JSON.parse(body)
+      const result = await new Usuario(usuario).save()
 
-    req.on('data', (chunk) => (body += chunk))
+      res.writeHead(200, { 'content-type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          title: 'Usuario ingresado con exito!',
+          content: result
+        })
+      )
+    } catch (err) {
+      res.writeHead(500, { 'content-type': 'application/json' })
 
-    req.on('end', async () => {
-      try {
-        const usuario = JSON.parse(body)
-        const result = await new Usuario(usuario).save()
-
-        res.writeHead(200, { 'content-type': 'application/json' })
-
-        res.end(
-          JSON.stringify({
-            title: 'Usuario ingresado con exito!',
-            content: result
-          })
-        )
-      } catch (err) {
-        res.writeHead(500, { 'content-type': 'application/json' })
-
-        res.end(
-          JSON.stringify({
-            error: `Error al ingresar datos: ${err}`
-          })
-        )
-      }
-    })
+      res.end(JSON.stringify({ error: `Error al ingresar datos: ${err}` }))
+    }
   }
 
   if (url.pathname.startsWith('/usuarios') && req.method === 'PATCH') {
@@ -180,7 +189,7 @@ const server = http.createServer(async (req, res) => {
     try {
       const productos = await Producto.find().populate('usuarioId')
 
-      res.writeHead(200, { 'content-type': 'applcation/json' })
+      res.writeHead(200, { 'content-type': 'application/json' })
 
       res.end(
         JSON.stringify({
